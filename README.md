@@ -32,3 +32,12 @@ A premium, minimal weather app built with **Next.js 14 App Router**, **Tailwind 
 - Import this repo into Vercel.
 - Add `OPENWEATHER_API_KEY` to your Vercel project environment variables.
 - Deploy.
+
+## Add your API key securely
+- For local development, put your real key in `.env.local` (this file is gitignored):
+  ```env
+  OPENWEATHER_API_KEY=your_real_key_here
+  ```
+- Never commit real API keys to source control.
+- For Vercel, add the same variable in **Project Settings -> Environment Variables**.
+
