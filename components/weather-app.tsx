@@ -107,7 +107,7 @@ export function WeatherApp() {
         }));
         // Remove duplicates by display value
 const uniqueSuggestions = Array.from(
-  new Map(nextSuggestions.map(item => [item.display, item])).values()
+  new Map(nextSuggestions.map((item: CitySuggestion) => [item.display, item]).values()
 );
 
 setSuggestions(uniqueSuggestions);
