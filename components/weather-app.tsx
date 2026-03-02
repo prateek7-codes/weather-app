@@ -251,35 +251,50 @@ export function WeatherApp() {
           </AnimatePresence>
         </section>
 
-        <section className={`rounded-[28px] p-6 ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]'}`}>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] opacity-65">Hourly Forecast</p>
-          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-            {(data?.hourly ?? []).map((hour, idx) => (
-              <article key={hour.time} className={`min-w-[96px] rounded-2xl p-3 text-center transition-all duration-200 hover:-translate-y-0.5 ${idx === 0 ? (darkMode ? 'bg-white/14' : 'bg-slate-900/5') : (darkMode ? 'bg-white/6' : 'bg-slate-900/3')}`}>
-                <p className="text-xs opacity-70">{new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                <div className="my-2 flex items-center justify-center"><WeatherGlyph kind={hour.condition.includes('Rain') ? 'Rain' : kind} small /></div>
-                <p className="text-[22px] font-medium leading-none">{temp(hour.temp)}°</p>
-              </article>
-            ))}
-          </div>
-        </section>
+<section
+  className={`rounded-[28px] p-6 ${
+    darkMode
+      ? 'bg-white/8'
+      : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]'
+  }`}
+>
+  <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] opacity-65">
+    7-Day Forecast
+  </p>
 
-        <section className={`rounded-[28px] p-6 ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]`}>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] opacity-65">7-Day Forecast</p>
-          <div className="space-y-2">
-            {(data?.forecast ?? []).map((day) => (
-              <article key={day.date} className={`rounded-2xl p-4 ${darkMode ? 'bg-white/6' : 'bg-slate-900/3'}`}>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">{new Date(day.date).toLocaleDateString([], { weekday: 'long' })}</p>
-                  <p className="text-sm opacity-70">{temp(day.tempMax ?? day.temp)}° / {temp(day.tempMin ?? day.temp)}°</p>
-                </div>
-                <div className={`mt-2 h-1.5 rounded-full ${darkMode ? 'bg-white/15' : 'bg-slate-200'}`}>
-                  <div className="h-1.5 rounded-full bg-sky-400" style={{ width: `${day.precipitationChance ?? 0}%` }} />
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+  <div className="space-y-2">
+    {(data?.forecast ?? []).map((day) => (
+      <article
+        key={day.date}
+        className={`rounded-2xl p-4 ${
+          darkMode ? 'bg-white/6' : 'bg-slate-900/3'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium">
+            {new Date(day.date).toLocaleDateString([], { weekday: 'long' })}
+          </p>
+
+          <p className="text-sm opacity-70">
+            {temp(day.tempMax ?? day.temp)}° /{' '}
+            {temp(day.tempMin ?? day.temp)}°
+          </p>
+        </div>
+
+        <div
+          className={`mt-2 h-1.5 rounded-full ${
+            darkMode ? 'bg-white/15' : 'bg-slate-200'
+          }`}
+        >
+          <div
+            className="h-1.5 rounded-full bg-sky-400"
+            style={{ width: `${day.precipitationChance ?? 0}%` }}
+          />
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <DetailCard icon={<Droplets size={18} className="text-sky-400" />} label="Humidity" value={`${data?.current.humidity ?? '--'}%`} darkMode={darkMode} />
