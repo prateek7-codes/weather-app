@@ -105,7 +105,12 @@ export function WeatherApp() {
           country: entry.country ?? '',
           display: `${entry.name}, ${entry.country ?? ''}`
         }));
-        setSuggestions(nextSuggestions);
+        // Remove duplicates by display value
+const uniqueSuggestions = Array.from(
+  new Map(nextSuggestions.map(item => [item.display, item])).values()
+);
+
+setSuggestions(uniqueSuggestions);
       } catch {
         setSuggestions([]);
       }
