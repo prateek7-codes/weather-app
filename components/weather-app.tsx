@@ -164,10 +164,8 @@ export function WeatherApp() {
           <p className="text-sm font-medium tracking-[0.24em] opacity-65">ATMOS</p>
           <button
             onClick={() => setDarkMode((s) => !s)}
-            className={`inline-flex h-11 min-w-[132px] items-center justify-center gap-2 rounded-full px-4 text-sm font-medium transition-all duration-300 ${
-              darkMode
-                ? 'bg-white/10 text-slate-100 backdrop-blur-xl'
-                : 'bg-white/75 text-slate-900 shadow-[0_6px_24px_rgba(15,23,42,0.08)]'
+            className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-xs font-medium transition-all ${
+              darkMode ? 'bg-white/10 backdrop-blur-xl' : 'bg-slate-900/5'
             }`}
           >
             <motion.span initial={false} animate={{ rotate: darkMode ? 0 : 180 }} transition={{ duration: 0.3 }}>
@@ -177,69 +175,7 @@ export function WeatherApp() {
           </button>
         </header>
 
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.section key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-12 text-center">
-              <div className="mx-auto h-24 w-24 animate-pulse rounded-full bg-white/18" />
-              <div className="mx-auto mt-8 h-24 w-64 animate-pulse rounded-2xl bg-white/15" />
-            </motion.section>
-          ) : error && !data ? (
-            <motion.section key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 text-center">
-              <p className="text-sm opacity-80">{error}</p>
-            </motion.section>
-          ) : (
-            data && (
-              <motion.section
-                key={data.location.city}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="relative py-2 text-center"
-              >
-                <div className="pointer-events-none absolute left-1/2 top-4 h-52 w-52 -translate-x-1/2 rounded-full bg-sky-400/15 blur-3xl" />
-
-                <motion.div
-                  className="relative mx-auto mb-5 h-24 w-24"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <div className="absolute inset-0 rounded-full bg-white/10 blur-xl" />
-                  <div className="relative z-10">
-                    <WeatherGlyph kind={kind} />
-                  </div>
-                </motion.div>
-
-                <p className="text-xs tracking-[0.18em] opacity-55">
-                  {new Date().toLocaleDateString()} · {now.toLocaleTimeString()}
-                </p>
-                <h1 className="mt-3 text-[88px] font-extralight leading-none tracking-[-0.065em] sm:text-[146px]">
-                  {temp(data.current.temp)}°
-                </h1>
-                <p className="mt-1 text-sm capitalize opacity-68">{data.current.condition}</p>
-                <p className="mt-2 text-xl font-medium opacity-85 sm:text-2xl">
-                  {data.location.city}, {data.location.country}
-                </p>
-
-                <div className="mx-auto mt-8 flex w-full max-w-2xl flex-wrap items-center justify-center gap-2.5">
-                  <Metric icon={<Gauge size={14} />} label="Feels" value={`${temp(data.current.feelsLike)}°`} darkMode={darkMode} />
-                  <Metric icon={<Droplets size={14} />} label="Humidity" value={`${data.current.humidity}%`} darkMode={darkMode} />
-                  <Metric icon={<Wind size={14} />} label="Wind" value={`${data.current.windSpeed} m/s`} darkMode={darkMode} />
-                  <button
-                    onClick={() => setUseF((s) => !s)}
-                    className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-xs font-medium transition-all ${
-                      darkMode ? 'bg-white/10 backdrop-blur-xl' : 'bg-slate-900/5'
-                    }`}
-                  >
-                    <Compass size={14} /> {useF ? 'Use °C' : 'Use °F'}
-                  </button>
-                </div>
-              </motion.section>
-            )
-          )}
-        </AnimatePresence>
-
-        <section className="mx-auto w-full max-w-[480px]">
+        <section className="mx-auto mt-4 w-full max-w-[400px]">
           <form onSubmit={onSearch} className="relative">
             <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 opacity-60" />
             <input
@@ -287,11 +223,75 @@ export function WeatherApp() {
           </AnimatePresence>
         </section>
 
-        <section>
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.section key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-12 text-center">
+              <div className="mx-auto h-24 w-24 animate-pulse rounded-full bg-white/18" />
+              <div className="mx-auto mt-8 h-24 w-64 animate-pulse rounded-2xl bg-white/15" />
+            </motion.section>
+          ) : error && !data ? (
+            <motion.section key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 text-center">
+              <p className="text-sm opacity-80">{error}</p>
+            </motion.section>
+          ) : (
+            data && (
+              <motion.section
+                key={data.location.city}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="relative py-2 text-center"
+              >
+                <div className="pointer-events-none absolute left-1/2 top-4 h-52 w-52 -translate-x-1/2 rounded-full bg-sky-400/15 blur-3xl" />
+
+                <motion.div
+                  className="relative mx-auto mb-5 h-24 w-24"
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="absolute inset-0 rounded-full bg-white/10 blur-xl" />
+                  <div className="relative z-10">
+                    <WeatherGlyph kind={kind} />
+                  </div>
+                </motion.div>
+
+                <p className="text-xs tracking-[0.18em] opacity-55">
+                  {new Date().toLocaleDateString()} · {now.toLocaleTimeString()}
+                </p>
+                <h1 className="mt-3 text-[88px] font-[300] leading-none tracking-[-0.065em] sm:text-[146px]">
+                  {temp(data.current.temp)}°
+                </h1>
+                <p className="mt-1 text-[13px] uppercase tracking-[0.12em] opacity-55">{data.current.condition}</p>
+                <p className="mt-2 text-[22px] font-light opacity-85">
+                  {data.location.city}, {data.location.country}
+                </p>
+
+                <div className="mx-auto mt-8 flex w-full max-w-2xl flex-wrap items-center justify-center gap-2.5">
+                  <Metric icon={<Gauge size={14} />} label="Feels" value={`${temp(data.current.feelsLike)}°`} darkMode={darkMode} />
+                  <Metric icon={<Droplets size={14} />} label="Humidity" value={`${data.current.humidity}%`} darkMode={darkMode} />
+                  <Metric icon={<Wind size={14} />} label="Wind" value={`${data.current.windSpeed} m/s`} darkMode={darkMode} />
+                  <button
+                    onClick={() => setUseF((s) => !s)}
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-xs font-medium transition-all ${
+                      darkMode ? 'bg-white/10 backdrop-blur-xl' : 'bg-slate-900/5'
+                    }`}
+                  >
+                    <Compass size={14} /> {useF ? 'Use °C' : 'Use °F'}
+                  </button>
+                </div>
+              </motion.section>
+            )
+          )}
+        </AnimatePresence>
+
+        
+
+        <section className={`rounded-2xl px-4 py-4 backdrop-blur-xl ${darkMode ? 'bg-white/7 border border-white/10' : 'bg-white/70 border border-black/10'}`}>
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em] opacity-55">Hourly Forecast</p>
           <div className="no-scrollbar flex gap-5 overflow-x-auto pb-2">
             {(data?.hourly ?? []).map((hour, idx) => (
-              <article key={hour.time} className="min-w-[102px] text-center">
+              <article key={hour.time} className={`min-w-[102px] rounded-xl px-2 py-2 text-center ${idx === 0 ? 'bg-white/15' : ''}`}>
                 <p className="text-xs opacity-65">
                   {new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -308,7 +308,7 @@ export function WeatherApp() {
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em] opacity-55">7-Day Forecast</p>
           <div className="space-y-3">
             {(data?.forecast ?? []).map((day) => (
-              <article key={day.date} className="py-2">
+              <article key={day.date} className={`py-3 border-b ${darkMode ? 'border-white/10' : 'border-black/10'}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <DayGlyph condition={day.condition} />
@@ -316,24 +316,21 @@ export function WeatherApp() {
                   </div>
                   <p className="text-sm opacity-70">{temp(day.tempMax ?? day.temp)}° / {temp(day.tempMin ?? day.temp)}°</p>
                 </div>
-                <div className={`mt-2 h-[2px] rounded-full ${darkMode ? 'bg-white/14' : 'bg-slate-300/80'}`}>
-                  <div className="h-[2px] rounded-full bg-sky-400" style={{ width: `${day.precipitationChance ?? 0}%` }} />
-                </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="flex flex-wrap gap-x-6 gap-y-3">
-          <DetailCard icon={<Droplets size={16} className="text-sky-400" />} label="Humidity" value={`${data?.current.humidity ?? '--'}%`} />
-          <DetailCard icon={<Compass size={16} className="text-indigo-400" />} label="Wind" value={`${data?.current.windDeg ?? '--'}°`} />
-          <DetailCard icon={<Sun size={16} className="text-amber-400" />} label="UV Index" value={`${data?.current.uvIndex ?? '--'}`} />
-          <DetailCard icon={<Search size={16} className="text-emerald-400" />} label="Visibility" value={`${data?.current.visibility ?? '--'} km`} />
-          <DetailCard icon={<Sunrise size={16} className="text-orange-400" />} label="Sunrise" value={data ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'} />
-          <DetailCard icon={<Sunset size={16} className="text-pink-400" />} label="AQI" value={`${data?.current.aqi ?? '--'}/5`} />
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <DetailCard icon={<Droplets size={16} className="text-sky-400" />} label="Humidity" value={`${data?.current.humidity ?? '--'}%`} darkMode={darkMode} />
+          <DetailCard icon={<Compass size={16} className="text-indigo-400" />} label="Wind" value={`${data?.current.windDeg ?? '--'}°`} darkMode={darkMode} />
+          <DetailCard icon={<Sun size={16} className="text-amber-400" />} label="UV Index" value={`${data?.current.uvIndex ?? '--'}`} darkMode={darkMode} />
+          <DetailCard icon={<Search size={16} className="text-emerald-400" />} label="Visibility" value={`${data?.current.visibility ?? '--'} km`} darkMode={darkMode} />
+          <DetailCard icon={<Sunrise size={16} className="text-orange-400" />} label="Sunrise" value={data ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'} darkMode={darkMode} />
+          <DetailCard icon={<Sunset size={16} className="text-pink-400" />} label="AQI" value={`${data?.current.aqi ?? '--'}/5`} darkMode={darkMode} />
         </section>
 
-        <footer className="pb-8 text-center text-sm opacity-55">
+        <footer className="pb-6 pt-4 text-center text-[11px] opacity-35">
           Last updated: {data ? new Date(data.updatedAt).toLocaleTimeString() : '--:--:--'}
         </footer>
       </div>
@@ -351,12 +348,12 @@ function Metric({ icon, label, value, darkMode }: { icon: React.ReactNode; label
   );
 }
 
-function DetailCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function DetailCard({ icon, label, value, darkMode }: { icon: React.ReactNode; label: string; value: string; darkMode: boolean }) {
   return (
-    <article className="inline-flex items-center gap-2.5 rounded-full bg-white/[0.06] px-3 py-2 backdrop-blur-xl">
-      {icon}
-      <p className="text-[11px] font-semibold uppercase tracking-[1.4px] opacity-60">{label}</p>
-      <p className="text-[15px] font-medium leading-none">{value}</p>
+    <article className={`rounded-2xl border p-4 backdrop-blur-xl ${darkMode ? 'border-white/10 bg-white/[0.07]' : 'border-black/10 bg-white/70'}`}>
+      <div className="flex items-center gap-2">{icon}</div>
+      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[1.4px] opacity-60">{label}</p>
+      <p className="mt-1 text-[22px] font-medium leading-none">{value}</p>
     </article>
   );
 }

@@ -6,25 +6,9 @@ import { WeatherKind } from '@/lib/weather';
 const particles = Array.from({ length: 24 }, (_, i) => i);
 
 export function WeatherBackground({ kind, darkMode = true }: { kind: WeatherKind; darkMode?: boolean }) {
-  const themeMap: Record<WeatherKind, string> = darkMode
-    ? {
-        Clear: 'from-[#060d1c] via-[#132845] to-[#1f3661]',
-        Clouds: 'from-[#060d1c] via-[#1a2e47] to-[#22364f]',
-        Rain: 'from-[#050c18] via-[#10263c] to-[#17324a]',
-        Thunderstorm: 'from-[#03050d] via-[#0d172d] to-[#131b2c]',
-        Snow: 'from-[#091327] via-[#1a2f49] to-[#27405e]',
-        Night: 'from-[#030711] via-[#111a31] to-[#1a2742]',
-        Other: 'from-[#060d1c] via-[#132845] to-[#223754]'
-      }
-    : {
-        Clear: 'from-[#e3eeff] via-[#edf4ff] to-[#f5f9ff]',
-        Clouds: 'from-[#e8f0ff] via-[#eef4ff] to-[#f6f9ff]',
-        Rain: 'from-[#dde9ff] via-[#e7f0ff] to-[#f0f5ff]',
-        Thunderstorm: 'from-[#e4edff] via-[#ecf2ff] to-[#f4f8ff]',
-        Snow: 'from-[#eaf2ff] via-[#f0f5ff] to-[#f7faff]',
-        Night: 'from-[#e0ebff] via-[#e8f1ff] to-[#f1f6ff]',
-        Other: 'from-[#e6efff] via-[#edf4ff] to-[#f4f8ff]'
-      };
+  const backgroundStyle = darkMode
+    ? 'radial-gradient(ellipse at 50% 20%, #1a3f5c 0%, #020c1b 65%)'
+    : 'radial-gradient(ellipse at 50% 20%, #dbeeff 0%, #eef4fb 70%)';
 
   return (
     <motion.div
@@ -32,7 +16,8 @@ export function WeatherBackground({ kind, darkMode = true }: { kind: WeatherKind
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className={`absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br ${themeMap[kind]}`}
+      className="absolute inset-0 -z-10 overflow-hidden"
+      style={{ background: backgroundStyle }}
     >
       <motion.div
         className={`absolute -left-24 -top-28 h-80 w-80 rounded-full ${darkMode ? 'bg-cyan-400/16' : 'bg-sky-300/30'} blur-3xl`}
