@@ -3,92 +3,69 @@
 import { motion } from 'framer-motion';
 import { WeatherKind } from '@/lib/weather';
 
-const particles = Array.from({ length: 30 }, (_, i) => i);
+const particles = Array.from({ length: 24 }, (_, i) => i);
 
-export function WeatherBackground({ kind }: { kind: WeatherKind }) {
-  const styleMap: Record<WeatherKind, string> = {
-    Clear: 'from-amber-100 via-orange-200/90 to-sky-200/80',
-    Clouds: 'from-slate-100 via-slate-300/80 to-zinc-200/90',
-    Rain: 'from-slate-500/85 via-slate-700/90 to-blue-950/90',
-    Thunderstorm: 'from-slate-950 via-indigo-950 to-zinc-950',
-    Snow: 'from-slate-100 via-sky-100/95 to-indigo-100/95',
-    Night: 'from-slate-950 via-indigo-950 to-blue-950',
-    Other: 'from-cyan-100 via-sky-200/85 to-indigo-200/80'
-  };
+export function WeatherBackground({ kind, darkMode = true }: { kind: WeatherKind; darkMode?: boolean }) {
+  const themeMap: Record<WeatherKind, string> = darkMode
+    ? {
+        Clear: 'from-[#0b1224] via-[#1b2f52] to-[#2f3f6f]',
+        Clouds: 'from-[#0b1224] via-[#24364e] to-[#2c3e57]',
+        Rain: 'from-[#091424] via-[#11283f] to-[#1a2b44]',
+        Thunderstorm: 'from-[#04060f] via-[#121b33] to-[#151a2a]',
+        Snow: 'from-[#0d172b] via-[#1c2f48] to-[#2c405d]',
+        Night: 'from-[#050914] via-[#131d35] to-[#1b2745]',
+        Other: 'from-[#0b1224] via-[#1b2f52] to-[#243b5a]'
+      }
+    : {
+        Clear: 'from-[#dfeeff] via-[#eaf4ff] to-[#f3f8ff]',
+        Clouds: 'from-[#e4eefb] via-[#edf4ff] to-[#f4f8ff]',
+        Rain: 'from-[#d8e8ff] via-[#e2edff] to-[#eef3ff]',
+        Thunderstorm: 'from-[#dfe8fa] via-[#e8efff] to-[#f0f5ff]',
+        Snow: 'from-[#e8f1ff] via-[#eef5ff] to-[#f5f9ff]',
+        Night: 'from-[#dbe7ff] via-[#e3eeff] to-[#eef4ff]',
+        Other: 'from-[#e4edff] via-[#ebf3ff] to-[#f3f8ff]'
+      };
 
   return (
     <motion.div
-      key={kind}
+      key={`${kind}-${darkMode ? 'dark' : 'light'}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className={`absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br ${styleMap[kind]}`}
+      transition={{ duration: 0.7 }}
+      className={`absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br ${themeMap[kind]}`}
     >
       <motion.div
-        className="absolute -left-24 -top-28 h-[24rem] w-[24rem] rounded-full bg-white/30 blur-3xl"
-        animate={{ x: [0, 18, 0], y: [0, -14, 0], opacity: [0.28, 0.38, 0.28] }}
+        className={`absolute -left-16 -top-24 h-72 w-72 rounded-full ${darkMode ? 'bg-sky-400/15' : 'bg-sky-300/30'} blur-3xl`}
+        animate={{ x: [0, 24, 0], y: [0, -12, 0] }}
         transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute -bottom-24 -right-16 h-[22rem] w-[22rem] rounded-full bg-sky-200/30 blur-3xl"
-        animate={{ x: [0, -16, 0], y: [0, 10, 0], opacity: [0.2, 0.3, 0.2] }}
+        className={`absolute -bottom-20 -right-16 h-72 w-72 rounded-full ${darkMode ? 'bg-indigo-400/15' : 'bg-indigo-300/25'} blur-3xl`}
+        animate={{ x: [0, -22, 0], y: [0, 10, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
       />
-
-      {(kind === 'Clouds' || kind === 'Rain') &&
-        particles.slice(0, 10).map((p) => (
-          <motion.div
-            key={`cloud-${p}`}
-            className="absolute h-16 w-36 rounded-full bg-white/20 blur-sm"
-            style={{ top: `${8 + p * 8}%`, left: `${(p * 11) % 100}%` }}
-            animate={{ x: [0, 22, 0], y: [0, -6, 0], opacity: [0.2, 0.32, 0.2] }}
-            transition={{ duration: 14 + p, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        ))}
 
       {kind === 'Rain' &&
         particles.map((p) => (
           <motion.span
             key={`rain-${p}`}
-            className="absolute h-10 w-[1.5px] rounded-full bg-cyan-100/70"
-            style={{ left: `${(p * 3.5) % 100}%`, top: '-8%' }}
+            className={`absolute h-8 w-[1.5px] ${darkMode ? 'bg-cyan-200/55' : 'bg-blue-300/55'}`}
+            style={{ left: `${(p * 4) % 100}%`, top: '-6%' }}
             animate={{ y: ['0vh', '110vh'] }}
-            transition={{ duration: 1 + (p % 4) * 0.22, repeat: Infinity, ease: 'linear', delay: p * 0.05 }}
+            transition={{ duration: 1.1 + (p % 3) * 0.2, repeat: Infinity, ease: 'linear', delay: p * 0.08 }}
           />
         ))}
 
-      {kind === 'Snow' &&
-        particles.map((p) => (
-          <motion.span
-            key={`snow-${p}`}
-            className="absolute h-2 w-2 rounded-full bg-white/85"
-            style={{ left: `${(p * 6.5) % 100}%`, top: '-4%' }}
-            animate={{ y: ['0vh', '110vh'], x: [0, 10, -9, 0], opacity: [0.85, 0.6, 0.85] }}
-            transition={{ duration: 6 + (p % 5), repeat: Infinity, ease: 'linear', delay: p * 0.18 }}
+      {(kind === 'Clouds' || kind === 'Snow') &&
+        particles.slice(0, 8).map((p) => (
+          <motion.div
+            key={`cloud-${p}`}
+            className={`absolute h-14 w-28 rounded-full ${darkMode ? 'bg-white/12' : 'bg-white/40'} blur-sm`}
+            style={{ top: `${10 + p * 10}%`, left: `${(p * 12) % 100}%` }}
+            animate={{ x: [0, 16, 0], y: [0, -4, 0] }}
+            transition={{ duration: 12 + p, repeat: Infinity }}
           />
         ))}
-
-      {kind === 'Night' &&
-        particles.map((p) => (
-          <motion.span
-            key={`star-${p}`}
-            className="absolute h-[3px] w-[3px] rounded-full bg-white"
-            style={{ left: `${(p * 9) % 100}%`, top: `${(p * 13) % 100}%` }}
-            animate={{ opacity: [0.25, 1, 0.25], scale: [0.9, 1.2, 0.9] }}
-            transition={{ duration: 2 + (p % 4), repeat: Infinity, ease: 'easeInOut' }}
-          />
-        ))}
-
-      {kind === 'Thunderstorm' && (
-        <motion.div
-          className="absolute inset-0 bg-white/15"
-          animate={{ opacity: [0, 0, 0.3, 0, 0, 0.2, 0] }}
-          transition={{ repeat: Infinity, duration: 6, times: [0, 0.68, 0.72, 0.75, 0.9, 0.93, 1] }}
-        />
-      )}
-
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.35),transparent_55%)]" />
-      <div className="noise-overlay absolute inset-0" />
     </motion.div>
   );
 }

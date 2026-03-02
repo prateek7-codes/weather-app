@@ -1,8 +1,8 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Search, Sun, Moon, Droplets, Wind, Eye, Gauge, Compass, Sunrise, Sunset } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { Search, Sun, Moon, Droplets, Wind, Eye, Gauge, Compass, Sunrise, Sunset, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { WeatherBackground } from '@/components/weather-background';
 import { WeatherPayload } from '@/lib/weather';
 
@@ -27,7 +27,6 @@ export function WeatherApp() {
   const [error, setError] = useState<string | null>(null);
   const [city, setCity] = useState('');
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [useF, setUseF] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [now, setNow] = useState(new Date());
@@ -135,212 +134,202 @@ export function WeatherApp() {
   };
 
   const kind = data?.current.weatherKind ?? 'Other';
-  const dateFmt = useMemo(() => new Intl.DateTimeFormat('en', { weekday: 'long', month: 'short', day: 'numeric' }), []);
-  const timeFmt = useMemo(() => new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), []);
-
   const temp = (v: number) => (useF ? toF(v) : v);
-  const unit = useF ? '°F' : '°C';
 
   return (
-    <main
-      className={`relative min-h-screen overflow-hidden px-4 py-6 ${darkMode ? 'text-white' : 'text-slate-900'} sm:px-6 sm:py-8`}
-      onMouseMove={(e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 8;
-        const y = (e.clientY / window.innerHeight - 0.5) * 8;
-        setOffset({ x, y });
-      }}
-    >
-      <WeatherBackground kind={kind} />
+    <main className={`relative min-h-screen overflow-hidden px-4 py-6 transition-all duration-300 sm:px-6 ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+      <WeatherBackground kind={kind} darkMode={darkMode} />
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <div className="flex items-center justify-end gap-3">
-          <Toggle label={useF ? '°F' : '°C'} on={useF} onToggle={() => setUseF((s) => !s)} />
-          <Toggle label={darkMode ? 'Dark' : 'Light'} on={darkMode} onToggle={() => setDarkMode((s) => !s)} icon={darkMode ? <Moon size={13} /> : <Sun size={13} />} />
-        </div>
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+        <header className="flex items-center justify-between">
+          <p className="text-sm font-medium tracking-[0.2em] opacity-70">ATMOS</p>
+          <button
+            onClick={() => setDarkMode((s) => !s)}
+            className={`inline-flex h-11 min-w-[132px] items-center justify-center gap-2 rounded-full px-4 text-sm font-medium transition-all duration-300 ${darkMode ? 'bg-white/10 text-slate-100' : 'bg-white/80 text-slate-900'}`}
+          >
+            <motion.span initial={false} animate={{ rotate: darkMode ? 0 : 180 }} transition={{ duration: 0.3 }}>
+              {darkMode ? <Moon size={16} /> : <Sun size={16} />}
+            </motion.span>
+            {darkMode ? 'Dark Mode' : 'Light Mode'}
+          </button>
+        </header>
 
-        <div className="relative z-20">
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.section
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className={`rounded-[28px] p-8 ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]'}`}
+            >
+              <div className="mx-auto h-24 w-24 animate-pulse rounded-full bg-white/20" />
+              <div className="mx-auto mt-6 h-16 w-44 animate-pulse rounded-xl bg-white/20" />
+              <div className="mx-auto mt-3 h-4 w-48 animate-pulse rounded bg-white/20" />
+            </motion.section>
+          ) : error && !data ? (
+            <motion.section
+              key="error"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`rounded-[28px] p-8 text-center ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]'}`}
+            >
+              <p className="text-sm opacity-80">{error}</p>
+            </motion.section>
+          ) : (
+            data && (
+              <motion.section
+                key={data.location.city}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className={`rounded-[32px] p-8 text-center ${darkMode ? 'bg-white/10 shadow-[0_30px_80px_rgba(2,6,23,0.45)]' : 'bg-white/80 shadow-[0_22px_64px_rgba(15,23,42,0.1)]'} backdrop-blur-2xl`}
+              >
+                <motion.div
+                  className="mx-auto mb-4 h-24 w-24 rounded-full"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <WeatherGlyph kind={kind} />
+                </motion.div>
+
+                <p className="text-sm tracking-wide opacity-65">
+                  {new Date().toLocaleDateString()} · {now.toLocaleTimeString()}
+                </p>
+                <h1 className="mt-2 text-[64px] font-extralight leading-none tracking-[-0.05em] sm:text-[88px]">
+                  {temp(data.current.temp)}°
+                </h1>
+                <p className="mt-1 text-sm capitalize opacity-75">{data.current.condition}</p>
+                <p className="mt-2 text-2xl font-medium">{data.location.city}, {data.location.country}</p>
+
+                <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <Metric icon={<Gauge size={14} />} label="Feels" value={`${temp(data.current.feelsLike)}°`} darkMode={darkMode} />
+                  <Metric icon={<Droplets size={14} />} label="Humidity" value={`${data.current.humidity}%`} darkMode={darkMode} />
+                  <Metric icon={<Wind size={14} />} label="Wind" value={`${data.current.windSpeed} m/s`} darkMode={darkMode} />
+                  <button onClick={() => setUseF((s) => !s)} className={`flex min-h-11 items-center justify-center gap-2 rounded-2xl px-3 text-xs font-medium transition-all ${darkMode ? 'bg-white/10' : 'bg-slate-900/5'}`}>
+                    <Compass size={14} /> {useF ? 'Use °C' : 'Use °F'}
+                  </button>
+                </div>
+              </motion.section>
+            )
+          )}
+        </AnimatePresence>
+
+        <section className="mx-auto w-full max-w-[480px]">
           <form onSubmit={onSearch} className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/70" size={17} />
+            <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 opacity-60" />
             <input
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="Search city..."
-              className="w-full rounded-2xl border border-white/25 bg-slate-950/35 py-3.5 pl-11 pr-4 text-sm text-white backdrop-blur-2xl placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
+              className={`h-[52px] w-full rounded-2xl pl-11 pr-11 text-sm outline-none transition-all duration-300 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.3)] ${darkMode ? 'bg-slate-800/70' : 'bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)]'}`}
             />
+            {city && (
+              <button type="button" onClick={() => setCity('')} className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full opacity-70 transition hover:opacity-100">
+                <X size={16} />
+              </button>
+            )}
           </form>
+
           <AnimatePresence>
             {suggestions.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                className="absolute mt-2 w-full overflow-hidden rounded-2xl border border-white/20 bg-slate-950/70 p-1 backdrop-blur-2xl"
+                exit={{ opacity: 0 }}
+                className={`mt-2 rounded-2xl p-1 ${darkMode ? 'bg-slate-900/70' : 'bg-white shadow-[0_8px_30px_rgba(15,23,42,0.08)]'}`}
               >
-                {suggestions.map((suggestion) => (
-                  <button
-                    type="button"
-                    key={suggestion.id}
-                    onClick={() => selectCity(suggestion.name)}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm text-white/90 hover:bg-white/10"
-                  >
-                    {suggestion.display}
+                {suggestions.map((s) => (
+                  <button key={s.id} type="button" onClick={() => selectCity(s.name)} className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-white/10">
+                    <Search size={14} />
+                    {s.display}
                   </button>
                 ))}
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </section>
 
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <GlassPanel key="skeleton" className="p-8">
-              <div className="h-5 w-40 animate-pulse rounded bg-white/30" />
-              <div className="mt-5 h-28 w-52 animate-pulse rounded-2xl bg-white/30" />
-              <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-16 animate-pulse rounded-2xl bg-white/30" />
-                ))}
-              </div>
-            </GlassPanel>
-          ) : error && !data ? (
-            <GlassPanel key="error" className="p-10 text-center">
-              <p className="text-sm uppercase tracking-[0.24em] text-white/60">City not found</p>
-              <p className="mt-4 text-lg text-white/90">{error}</p>
-            </GlassPanel>
-          ) : (
-            data && (
-              <motion.div
-                key={data.location.city}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="grid gap-6 xl:grid-cols-[1.35fr_1fr]"
-              >
-                <GlassPanel className="relative p-6 sm:p-8" style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}>
-                  <div className="mb-4 flex items-start justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.24em] text-white/65">{data.location.city}, {data.location.country}</p>
-                      <p className="mt-2 text-sm text-white/75">{dateFmt.format(now)} · {timeFmt.format(now)}</p>
-                    </div>
-                    <WeatherGlyph kind={kind} />
-                  </div>
+        <section className={`rounded-[28px] p-6 ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]'}`}>
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] opacity-65">Hourly Forecast</p>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+            {(data?.hourly ?? []).map((hour, idx) => (
+              <article key={hour.time} className={`min-w-[96px] rounded-2xl p-3 text-center transition-all duration-200 hover:-translate-y-0.5 ${idx === 0 ? (darkMode ? 'bg-white/14' : 'bg-slate-900/5') : (darkMode ? 'bg-white/6' : 'bg-slate-900/3')}`}>
+                <p className="text-xs opacity-70">{new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                <div className="my-2 flex items-center justify-center"><WeatherGlyph kind={hour.condition.includes('Rain') ? 'Rain' : kind} small /></div>
+                <p className="text-[22px] font-medium leading-none">{temp(hour.temp)}°</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
-                  <motion.h1 key={temp(data.current.temp)} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="text-[96px] font-semibold leading-[0.9] tracking-[-0.04em] sm:text-[120px]">
-                    {temp(data.current.temp)}°
-                  </motion.h1>
-                  <p className="mt-2 text-lg capitalize text-white/85">{data.current.condition}</p>
-
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    <Pill icon={<Gauge size={14} />} label={`Feels ${temp(data.current.feelsLike)}${unit}`} />
-                    <Pill icon={<Droplets size={14} />} label={`${data.current.humidity}% Humidity`} />
-                    <Pill icon={<Wind size={14} />} label={`${data.current.windSpeed} m/s`} />
-                    <Pill icon={<Sun size={14} />} label={`UV ${data.current.uvIndex}`} />
-                  </div>
-
-                  <section className="mt-8">
-                    <p className="mb-3 text-xs uppercase tracking-[0.2em] text-white/60">Hourly forecast</p>
-                    <div className="flex gap-3 overflow-x-auto pb-1">
-                      {data.hourly.map((hour, index) => (
-                        <motion.div key={hour.time} whileHover={{ y: -4 }} className={`min-w-[94px] rounded-2xl border p-3 text-center ${index === 0 ? 'border-white/50 bg-white/24' : 'border-white/20 bg-white/10'}`}>
-                          <p className="text-xs text-white/70">{new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                          <div className="my-2 flex justify-center"><WeatherGlyph kind={hour.condition.includes('Rain') ? 'Rain' : kind} small /></div>
-                          <p className="text-lg font-semibold">{temp(hour.temp)}°</p>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </section>
-                </GlassPanel>
-
-                <div className="flex flex-col gap-6">
-                  <GlassPanel className="p-6">
-                    <p className="mb-3 text-xs uppercase tracking-[0.2em] text-white/60">7-Day forecast</p>
-                    <div className="space-y-2">
-                      {data.forecast.map((day) => (
-                        <motion.div key={day.date} whileHover={{ scale: 1.01 }} className="rounded-2xl border border-white/20 bg-white/10 p-3">
-                          <div className="flex items-center justify-between text-sm">
-                            <p className="font-medium">{new Date(day.date).toLocaleDateString([], { weekday: 'short' })}</p>
-                            <p className="text-white/80">{temp(day.tempMax ?? day.temp)}° / {temp(day.tempMin ?? day.temp)}°</p>
-                          </div>
-                          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15">
-                            <motion.div className="h-full bg-cyan-300/80" initial={{ width: 0 }} animate={{ width: `${day.precipitationChance ?? 0}%` }} />
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </GlassPanel>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <DetailCard icon={<Droplets size={16} />} label="Humidity" value={`${data.current.humidity}%`} />
-                    <DetailCard icon={<Compass size={16} />} label="Wind Dir" value={`${data.current.windDeg}°`} />
-                    <DetailCard icon={<Sun size={16} />} label="UV Index" value={`${data.current.uvIndex}`} />
-                    <DetailCard icon={<Eye size={16} />} label="Visibility" value={`${data.current.visibility} km`} />
-                    <DetailCard icon={<Sunrise size={16} />} label="Sunrise" value={new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} />
-                    <DetailCard icon={<Sunset size={16} />} label="AQI" value={`${data.current.aqi}/5`} />
-                  </div>
-
-                  <GlassPanel className="overflow-hidden p-0">
-                    <iframe
-                      title="weather-map"
-                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${data.location.lon - 0.5}%2C${data.location.lat - 0.4}%2C${data.location.lon + 0.5}%2C${data.location.lat + 0.4}&layer=mapnik&marker=${data.location.lat}%2C${data.location.lon}`}
-                      className="h-44 w-full border-0"
-                    />
-                  </GlassPanel>
+        <section className={`rounded-[28px] p-6 ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_12px_45px_rgba(15,23,42,0.08)]`}>
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] opacity-65">7-Day Forecast</p>
+          <div className="space-y-2">
+            {(data?.forecast ?? []).map((day) => (
+              <article key={day.date} className={`rounded-2xl p-4 ${darkMode ? 'bg-white/6' : 'bg-slate-900/3'}`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">{new Date(day.date).toLocaleDateString([], { weekday: 'long' })}</p>
+                  <p className="text-sm opacity-70">{temp(day.tempMax ?? day.temp)}° / {temp(day.tempMin ?? day.temp)}°</p>
                 </div>
-              </motion.div>
-            )
-          )}
-        </AnimatePresence>
+                <div className={`mt-2 h-1.5 rounded-full ${darkMode ? 'bg-white/15' : 'bg-slate-200'}`}>
+                  <div className="h-1.5 rounded-full bg-sky-400" style={{ width: `${day.precipitationChance ?? 0}%` }} />
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-        <footer className="text-center text-xs text-white/60">
-          Powered by OpenWeather + Open-Meteo · Last updated {data ? new Date(data.updatedAt).toLocaleTimeString() : '--:--:--'}
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <DetailCard icon={<Droplets size={18} className="text-sky-400" />} label="Humidity" value={`${data?.current.humidity ?? '--'}%`} darkMode={darkMode} />
+          <DetailCard icon={<Compass size={18} className="text-indigo-400" />} label="Wind" value={`${data?.current.windDeg ?? '--'}°`} darkMode={darkMode} />
+          <DetailCard icon={<Sun size={18} className="text-amber-400" />} label="UV Index" value={`${data?.current.uvIndex ?? '--'}`} darkMode={darkMode} />
+          <DetailCard icon={<Eye size={18} className="text-emerald-400" />} label="Visibility" value={`${data?.current.visibility ?? '--'} km`} darkMode={darkMode} />
+          <DetailCard icon={<Sunrise size={18} className="text-orange-400" />} label="Sunrise" value={data ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'} darkMode={darkMode} />
+          <DetailCard icon={<Sunset size={18} className="text-pink-400" />} label="AQI" value={`${data?.current.aqi ?? '--'}/5`} darkMode={darkMode} />
+        </section>
+
+        <footer className="pb-6 text-center text-sm opacity-60">
+          Last updated: {data ? new Date(data.updatedAt).toLocaleTimeString() : '--:--:--'}
         </footer>
       </div>
     </main>
   );
 }
 
-function GlassPanel({ className, children, style }: { className?: string; children: React.ReactNode; style?: React.CSSProperties }) {
+function Metric({ icon, label, value, darkMode }: { icon: React.ReactNode; label: string; value: string; darkMode: boolean }) {
   return (
-    <motion.section
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.25 }}
-      style={style}
-      className={`relative rounded-[28px] border border-white/20 bg-slate-900/35 shadow-[0_28px_80px_rgba(2,6,23,0.55)] backdrop-blur-2xl ${className ?? ''}`}
-    >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-20 rounded-t-[28px] bg-gradient-to-b from-white/15 to-transparent" />
-      {children}
-    </motion.section>
-  );
-}
-
-function Toggle({ label, on, onToggle, icon }: { label: string; on: boolean; onToggle: () => void; icon?: React.ReactNode }) {
-  return (
-    <button onClick={onToggle} className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-slate-950/35 px-3 py-1.5 text-xs text-white/90 backdrop-blur-xl">
+    <div className={`flex items-center justify-center gap-2 rounded-2xl px-3 py-3 text-xs ${darkMode ? 'bg-white/8' : 'bg-slate-900/5'}`}>
       {icon}
-      {label}
-      <span className={`h-2.5 w-2.5 rounded-full ${on ? 'bg-emerald-300' : 'bg-white/40'}`} />
-    </button>
+      <span className="uppercase tracking-[0.12em] opacity-70">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
   );
 }
 
-function Pill({ label, icon }: { label: string; icon: React.ReactNode }) {
-  return <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white/85">{icon}{label}</span>;
-}
-
-function DetailCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+function DetailCard({ icon, label, value, darkMode }: { icon: React.ReactNode; label: string; value: string; darkMode: boolean }) {
   return (
-    <motion.div whileHover={{ y: -3 }} className="rounded-2xl border border-white/20 bg-white/10 p-3.5">
-      <p className="mb-2 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-white/65">{icon}{label}</p>
-      <p className="text-lg font-semibold text-white">{value}</p>
-    </motion.div>
+    <article className={`rounded-[20px] p-6 transition-all duration-200 hover:-translate-y-0.5 ${darkMode ? 'bg-white/8' : 'bg-white/75 shadow-[0_10px_30px_rgba(15,23,42,0.08)]'}`}>
+      <div className="flex items-center gap-2">
+        {icon}
+        <p className="text-[11px] font-semibold uppercase tracking-[1.5px] opacity-70">{label}</p>
+      </div>
+      <p className="mt-3 text-[22px] font-medium leading-none">{value}</p>
+    </article>
   );
 }
 
 function WeatherGlyph({ kind, small }: { kind: string; small?: boolean }) {
-  const size = small ? 'h-6 w-6' : 'h-14 w-14';
-  if (kind === 'Clear') return <motion.div className={`${size} rounded-full bg-amber-300 shadow-[0_0_40px_rgba(251,191,36,0.8)]`} animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }} />;
-  if (kind === 'Clouds') return <motion.div className={`${size} rounded-full bg-white/70`} animate={{ x: [0, 4, 0] }} transition={{ duration: 3, repeat: Infinity }} />;
-  if (kind === 'Rain') return <motion.div className={`${size} rounded-full bg-slate-200/80`} animate={{ y: [0, -2, 0] }} transition={{ duration: 2, repeat: Infinity }} />;
-  return <div className={`${size} rounded-full bg-white/50`} />;
+  const cls = small ? 'h-8 w-8' : 'h-24 w-24';
+  if (kind === 'Clear') {
+    return <motion.div className={`${cls} rounded-full bg-amber-300 shadow-[0_0_40px_rgba(251,191,36,0.5)]`} animate={{ rotate: 360 }} transition={{ duration: 24, repeat: Infinity, ease: 'linear' }} />;
+  }
+  if (kind === 'Clouds') {
+    return <motion.div className={`${cls} rounded-full bg-slate-300 shadow-[0_0_36px_rgba(148,163,184,0.45)]`} animate={{ x: [0, 3, 0] }} transition={{ duration: 3, repeat: Infinity }} />;
+  }
+  if (kind === 'Rain') {
+    return <motion.div className={`${cls} rounded-full bg-sky-400 shadow-[0_0_36px_rgba(56,189,248,0.45)]`} animate={{ y: [0, -2, 0] }} transition={{ duration: 2, repeat: Infinity }} />;
+  }
+  return <div className={`${cls} rounded-full bg-indigo-300 shadow-[0_0_30px_rgba(129,140,248,0.45)]`} />;
 }
