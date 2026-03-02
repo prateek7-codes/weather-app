@@ -113,7 +113,7 @@ const uniqueSuggestions = Array.from(
       item
     ])
   ).values()
-);
+) as CitySuggestion[];
 
 setSuggestions(uniqueSuggestions);
       } catch {
