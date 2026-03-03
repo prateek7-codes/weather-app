@@ -322,7 +322,17 @@ setSuggestions(uniqueSuggestions);
           <DetailCard icon={<Sun size={16} className="text-amber-400" />} label="UV Index" value={`${data?.current.uvIndex ?? '--'}`} darkMode={darkMode} />
           <DetailCard icon={<Search size={16} className="text-emerald-400" />} label="Visibility" value={`${data?.current.visibility ?? '--'} km`} darkMode={darkMode} />
           <DetailCard icon={<Sunrise size={16} className="text-orange-400" />} label="Sunrise" value={data ? new Date(data.current.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'} darkMode={darkMode} />
-          <DetailCard icon={<Sunset size={16} className="text-pink-400" />} label="AQI" value={`${data?.current.aqi ?? '--'}/5`} darkMode={darkMode} />
+          <DetailCard
+  icon={
+    <Sunset
+      size={16}
+      className={getAqiColor(data?.current.aqi)}
+    />
+  }
+  label="Air Quality"
+  value={getAqiLabel(data?.current.aqi)}
+  darkMode={darkMode}
+/>
         </section>
 
         <footer className="pb-6 pt-4 text-center text-[11px] opacity-35">
@@ -385,4 +395,26 @@ function DayGlyph({ condition }: { condition: string }) {
   if (c.includes('snow')) return <CloudSnow size={16} className="text-blue-200" />;
   if (c.includes('thunder')) return <CloudLightning size={16} className="text-indigo-300" />;
   return <Cloud size={16} className="text-slate-300" />;
+}
+
+function getAqiLabel(aqi: number | undefined) {
+  switch (aqi) {
+    case 1: return 'Good';
+    case 2: return 'Fair';
+    case 3: return 'Moderate';
+    case 4: return 'Poor';
+    case 5: return 'Very Poor';
+    default: return 'Unknown';
+  }
+}
+
+function getAqiColor(aqi: number | undefined) {
+  switch (aqi) {
+    case 1: return 'text-green-400';
+    case 2: return 'text-lime-400';
+    case 3: return 'text-yellow-400';
+    case 4: return 'text-orange-400';
+    case 5: return 'text-red-400';
+    default: return 'text-slate-400';
+  }
 }
