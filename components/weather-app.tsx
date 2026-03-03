@@ -836,3 +836,10 @@ function getAqiColor(aqi: number | undefined) {
     case 3:
       return 'text-yellow-400';
     case 4:
+      return 'text-orange-400';
+    case 5:
+      return 'text-red-400';
+    default:
+      return 'text-slate-400';
+  }
+}
