@@ -297,22 +297,7 @@ setSuggestions(uniqueSuggestions);
 
         
 
-        <section className={`rounded-2xl px-4 py-4 backdrop-blur-xl ${darkMode ? 'bg-white/7 border border-white/10' : 'bg-white/70 border border-black/10'}`}>
-          <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em] opacity-55">Hourly Forecast</p>
-          <div className="no-scrollbar flex gap-5 overflow-x-auto pb-2">
-            {(data?.hourly ?? []).map((hour, idx) => (
-              <article key={hour.time} className={`min-w-[102px] rounded-xl px-2 py-2 text-center ${idx === 0 ? 'bg-white/15' : ''}`}>
-                <p className="text-xs opacity-65">
-                  {new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-                <div className="my-2 flex items-center justify-center">
-                  <WeatherGlyph kind={hour.condition.includes('Rain') ? 'Rain' : kind} small />
-                </div>
-                <p className={`text-[22px] font-medium leading-none ${idx === 0 ? 'text-sky-300' : ''}`}>{temp(hour.temp)}°</p>
-              </article>
-            ))}
-          </div>
-        </section>
+
 
         <section>
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em] opacity-55">7-Day Forecast</p>
