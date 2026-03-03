@@ -316,7 +316,7 @@ setSuggestions(uniqueSuggestions);
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
           <DetailCard icon={<Droplets size={16} className="text-sky-400" />} label="Humidity" value={`${data?.current.humidity ?? '--'}%`} darkMode={darkMode} />
           <DetailCard icon={<Compass size={16} className="text-indigo-400" />} label="Wind" value={`${data?.current.windDeg ?? '--'}°`} darkMode={darkMode} />
           <DetailCard icon={<Sun size={16} className="text-amber-400" />} label="UV Index" value={`${data?.current.uvIndex ?? '--'}`} darkMode={darkMode} />
@@ -345,12 +345,25 @@ function Metric({ icon, label, value, darkMode }: { icon: React.ReactNode; label
 
 function DetailCard({ icon, label, value, darkMode }: { icon: React.ReactNode; label: string; value: string; darkMode: boolean }) {
   return (
-    <article className={`rounded-2xl border p-4 backdrop-blur-xl ${darkMode ? 'border-white/10 bg-white/[0.07]' : 'border-black/10 bg-white/70'}`}>
-      <div className="flex items-center gap-2">{icon}</div>
-      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[1.4px] opacity-60">{label}</p>
-      <p className="mt-1 text-[22px] font-medium leading-none">{value}</p>
-    </article>
-  );
+  <article
+    className={`rounded-2xl border p-3 backdrop-blur-xl ${
+      darkMode
+        ? 'border-white/10 bg-white/[0.07]'
+        : 'border-black/10 bg-white/70'
+    }`}
+  >
+    <div className="flex items-center justify-between">
+      <div className="text-lg">{icon}</div>
+      <p className="text-[18px] font-semibold leading-none tracking-tight">
+  {value}
+</p>
+    </div>
+
+    <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[1.2px] opacity-60">
+      {label}
+    </p>
+  </article>
+);
 }
 
 function WeatherGlyph({ kind, small }: { kind: string; small?: boolean }) {
