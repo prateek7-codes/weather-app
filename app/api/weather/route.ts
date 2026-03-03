@@ -127,7 +127,7 @@ export async function GET(req: NextRequest) {
   );
   const air = airRes.ok ? await airRes.json() : null;
 
-  const payload: WeatherPayload = {
+  const payload = {
     location: {
       city: weather.name,
       country: weather.sys?.country ?? '',
